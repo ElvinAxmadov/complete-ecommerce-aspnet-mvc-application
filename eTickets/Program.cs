@@ -1,3 +1,8 @@
+using eTickets.Data;
+using eTickets.Data.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+
 namespace eTickets
 {
     public class Program
@@ -8,6 +13,18 @@ namespace eTickets
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<AppDbContext>(options => 
+            options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;
+                                              Initial Catalog=ecommerce-app-db;
+                                              Integrated Security=True;
+                                              Connect Timeout=30;
+                                              Encrypt=False;
+                                              TrustServerCertificate=False;
+                                              ApplicationIntent=ReadWrite;
+                                              MultiSubnetFailover=False"));
+
+            builder.Services.AddScoped<IActorsService, ActorsService>();
+
 
             var app = builder.Build();
 
@@ -20,6 +37,7 @@ namespace eTickets
             }
 
             app.UseHttpsRedirection();
+            //app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -30,6 +48,8 @@ namespace eTickets
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
+            //Seed Data
+            AppDbInitializer.Seed(app);
             app.Run();
         }
     }
